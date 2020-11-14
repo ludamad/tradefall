@@ -1,22 +1,53 @@
 {
-  "name": "powder3",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "dependencies": {
-    "coffee-register": "^2.2.0",
-    "coffeescript": "^2.5.1",
-    "comlink": "^4.0.1",
-    "random": "^2.1.1",
-    "ts-node": "^8.5.2",
-    "typescript": "^3.5.3",
-    "typescript-require": "^0.2.10",
-    "yamljs": "^0.3.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node main.ts"
-  },
-  "author": "",
-  "license": "ISC"
+	"name": "powder3",
+	"version": "0.0.0",
+	"license": "MIT",
+	"bin": "dist/cli.js",
+	"engines": {
+		"node": ">=10"
+	},
+	"scripts": {
+		"build": "tsc",
+		"start": "npm run build && dist/cli.js",
+		"pretest": "npm run build",
+		"test": "xo && ava"
+	},
+	"files": [
+		"dist/cli.js"
+	],
+	"dependencies": {
+		"ink": "^3.0.8",
+		"ink-text-input": "^4.0.1",
+		"meow": "^8.0.0",
+		"react": "^17.0.1"
+	},
+	"devDependencies": {
+		"@ava/typescript": "^1.1.1",
+		"@sindresorhus/tsconfig": "^0.7.0",
+		"@types/react": "^16.9.56",
+		"ava": "^3.13.0",
+		"chalk": "^4.1.0",
+		"eslint-config-xo-react": "^0.23.0",
+		"eslint-plugin-react": "^7.21.5",
+		"eslint-plugin-react-hooks": "^4.2.0",
+		"ink-testing-library": "^2.1.0",
+		"typescript": "^4.0.5",
+		"xo": "^0.34.2"
+	},
+	"ava": {
+		"typescript": {
+			"extensions": [
+				"tsx"
+			],
+			"rewritePaths": {
+				"source/": "dist/"
+			}
+		}
+	},
+	"xo": {
+		"extends": "xo-react",
+		"rules": {
+			"react/prop-types": "off"
+		}
+	}
 }
