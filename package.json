@@ -9,17 +9,21 @@
 	"scripts": {
 		"build": "tsc",
 		"start": "npm run build && dist/cli.js",
-		"pretest": "npm run build",
-		"test": "xo && ava"
+		"test": "ts-node source/main.ts"
 	},
 	"files": [
 		"dist/cli.js"
 	],
 	"dependencies": {
+		"faker": "^5.1.0",
+		"fast-clone": "^1.5.13",
+		"gaussian": "^1.1.0",
 		"ink": "^3.0.8",
 		"ink-text-input": "^4.0.1",
 		"meow": "^8.0.0",
-		"react": "^17.0.1"
+		"react": "^17.0.1",
+		"seedrandom": "^3.0.5",
+		"ts-node": "^9.0.0"
 	},
 	"devDependencies": {
 		"@ava/typescript": "^1.1.1",

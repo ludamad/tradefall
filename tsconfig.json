@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"jsx": "react",
         "esModuleInterop": true,
-        "noImplicitAny": false,
+		"noImplicitAny": false,
+		"noUnusedLocals": false,
 		"outDir": "dist"
 	},
 	"include": ["source"]

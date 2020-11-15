@@ -1,44 +1,10 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 import { Input } from './inkUtils';
-
-interface AppState {
-	name: string;
-	// in dollars
-	money: number;
-	// 1 to 100
-	health: number;
-	// tolerance amount, amount in grams to "get high"
-	tolerance: number;
-	// drug amount in grams
-	stash: number;
-	energy: number;
-	totalTraffic: number;
-	todayUse: number;
-	totalUse: number;
-	drugName: string;
-	drugNickName: string;
-}
-
-function createAppState(name: string): AppState {
-	return {
-		name,
-		money: 300,
-		tolerance: 1,
-		stash: 28,
-		health: 100,
-		energy: 4,
-		totalTraffic: 28,
-		// In doses
-		todayUse: 1,
-		totalUse: 0,
-		drugName: 'methazole',
-		drugNickName: 'hippie powder'
-	};
-}
+import { createGameState } from './game';
 
 export function App() {
-	const [appState, setAppState] = React.useState(createAppState('scrub'));
+	const [gameState, setGameState] = React.useState(createGameState('scrub'));
 	
 	return <Box flexDirection="column">
 <Text>{`
@@ -52,26 +18,26 @@ POWDER 3
 (\\)\`-.___.(I) _(/)
   (I)  (/)(I)(\\)
   `}</Text>
-		<Text>Alright, <Text color="green">{appState.name}</Text>.
+		<Text>Alright, <Text color="green">{gameState.name}</Text>.
 			  I know this isn't the life you envisioned, but you're here now.</Text>
-		{appState.name !== 'scrub' ? undefined : showNameField()}
-		{appState.name === 'scrub' ? undefined : showStatus()}
+		{gameState.name !== 'scrub' ? undefined : showNameField()}
+		{gameState.name === 'scrub' ? undefined : showStatus()}
 	</Box>;
 	function showStatus() {
 		return <>
-		<Text><Text color="green">{appState.name}</Text> the {appState.drugName} "{appState.drugNickName}" dealer</Text>
+		<Text><Text color="green">{gameState.name}</Text> the {gameState.drugName} "{gameState.drugNickName}" dealer</Text>
 		<Box flexDirection="row">
 			<Box flexDirection="column" marginRight={5}>
-				<Text>Health: {appState.health}</Text>
-				<Text>Cash: ${appState.money}</Text>
-				<Text>Tolerance: {appState.tolerance}/dose</Text>
-				<Text>Total traffic: {appState.totalTraffic}g</Text>
+				<Text>Health: {gameState.health}</Text>
+				<Text>Cash: ${gameState.money}</Text>
+				<Text>Tolerance: {gameState.tolerance}/dose</Text>
+				<Text>Total traffic: {gameState.totalTraffic}g</Text>
 			</Box>
 			<Box flexDirection="column">
-				<Text>Energy: {appState.energy} missions</Text>
-				<Text>Stash: {appState.stash}g</Text>
-				<Text>Today's Use {appState.todayUse} doses</Text>
-				<Text>Total Use: {appState.totalUse}g</Text>
+				<Text>Energy: {gameState.energy} missions</Text>
+				<Text>Stash: {gameState.stash}g</Text>
+				<Text>Today's Use {gameState.todayUse} doses</Text>
+				<Text>Total Use: {gameState.totalUse}g</Text>
 			</Box>
 		</Box>
 	</>;
@@ -86,8 +52,8 @@ POWDER 3
 		</>;
 		function onSubmit(text: string) {
 			if (text.length > 1) {
-				setAppState({
-					...appState,
+				setGameState({
+					...gameState,
 					name: text.trim()
 				});
 			}
