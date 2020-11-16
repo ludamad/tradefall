@@ -4,6 +4,7 @@ import { basePrice, connectCost, randomName, randomNickname } from "./formulas";
 import { sum, removeOne } from "./jsUtils";
 import { log } from "./log";
 import { onConnectDayStart } from "./connect";
+import { FINAL_DAY } from "./config";
 
 export enum ConnectionTier {
     JUNKIE = 0,
@@ -44,14 +45,21 @@ export interface PlayerConnectAction {
 export interface PlayerEndDayAction {
     kind: 'end-day';
 }
+export interface SetMenuAction {
+    kind: 'set-menu';
+    menu: Menu;
+}
 
-export type Action = PlayerConnectAction | PlayerDealAction | PlayerEndDayAction;
+export type Action = PlayerConnectAction | PlayerDealAction | PlayerEndDayAction | SetMenuAction;
+
+export type Menu = 'main' | 'offer' | 'connect';
 
 export interface GameState {
     day: number;
 	name: string;
 	// in dollars
     money: number;
+    menu: Menu;
     // Based on total traffic, shown as levelup - 100 grams for level 2?
     tier: ConnectionTier;
 	// 1 to 100
@@ -75,12 +83,16 @@ export function totalWorth(gamestate: GameState) {
     return gamestate.money + basePrice(gamestate.stash);
 }
 
+export function isGameOver(gamestate: GameState) {
+    return gamestate.day > FINAL_DAY;
+}
+
 export function score(gamestate: GameState, stashAdjust=0, moneyAdjust=0) {
     // TODO, more
     return gamestate.money + moneyAdjust
-        + basePrice(gamestate.stash + stashAdjust)
-        + connectCost(gamestate.tier)
-        + sum(gamestate.connections, (c: Connection) => connectCost(c.tier)/2);
+        + basePrice(gamestate.stash + stashAdjust);
+        // + connectCost(gamestate.tier)
+        // + sum(gamestate.connections, (c: Connection) => connectCost(c.tier)/2);
 }
 
 export function canAffordDeal(
@@ -94,11 +106,21 @@ export function canAffordDeal(
     }
 }
 
-export function generateDealActions(gameState: GameState): PlayerDealAction[] {
+export function getPotentialDealActions(state: GameState): PlayerDealAction[] {
     const actions: PlayerDealAction[] = [];
-    for (const connection of gameState.connections) {
+    for (const connection of state.connections) {
         for (const deal of connection.outstandingDeals) {
-            if (canAffordDeal(gameState, deal)) {
+            actions.push(deal);
+        }
+    }
+    return actions;
+}
+
+export function generateDealActions(state: GameState): PlayerDealAction[] {
+    const actions: PlayerDealAction[] = [];
+    for (const connection of state.connections) {
+        for (const deal of connection.outstandingDeals) {
+            if (canAffordDeal(state, deal)) {
                 actions.push(deal);
             }
         }
@@ -110,62 +132,82 @@ export function canAffordConnect({money}: GameState, {cost}: PlayerConnectAction
     return cost <= money;
 }
 
-export function generateConnectActions(gameState: GameState): PlayerConnectAction[] {
-    return gameState.outstandingConnects.filter(c => canAffordConnect(gameState, c));
+export function generateConnectActions(state: GameState): PlayerConnectAction[] {
+    return state.outstandingConnects.filter(c => canAffordConnect(state, c));
 }
 
-export function generateActions(gameState: GameState): Action[] {
-    const actions: Action[] = [];
-    if (gameState.energy > 0) {
-        for (const action of generateDealActions(gameState)) {
-            actions.push(action);
-        }
-        for (const action of generateConnectActions(gameState)) {
-            actions.push(action);
-        }
-    }
-    actions.push({
-        kind: 'end-day'
-    });
-    return actions;
-}
-
-export function doAction(gameState: GameState, action: Action) {
-    if (action.kind === "connect") {
-        gameState.energy -= 1;
-        gameState.money -= action.cost;
-        gameState.connections.push(action.connection);
-        removeOne(gameState.outstandingConnects, action);
-    } else if (action.kind === "buy" || action.kind === "sell") {
-        gameState.energy -= 1;
-        if (action.kind === "buy") {
-            gameState.money -= action.cost;
-            gameState.stash += action.amount;
-        } else {
-            gameState.money += action.cost;
-            gameState.stash -= action.amount;
-        }
-        for (const {outstandingDeals} of gameState.connections) {
-            if (removeOne(outstandingDeals, action)) {
-                break;
+export function generateActions(state: GameState): Action[] {
+    const connects = state.energy <= 0 ? [] : generateConnectActions(state);
+    const deals = state.energy <= 0 ? [] : generateDealActions(state);
+    switch (state.menu) {
+        case "main":
+            const options:Action[] = [{kind: 'end-day'}];
+            if (deals.length > 0) {
+                options.push({kind: 'set-menu', menu: 'offer'});
             }
-        }
-    } else if (action.kind === 'end-day') {
-        gameState.day += 1;
-        gameState.energy = 4;
-        log(`DAY ${gameState.day}`);
-        for (const connection of gameState.connections) {
-            onConnectDayStart(connection);
-        }
-    } else {
-        throw new Error("Unexpected");
+            if (connects.length > 0) {
+                options.push({kind: 'set-menu', menu: 'connect'});
+            }
+            return options;
+        case "connect":
+            return connects;
+        case "offer":
+            return deals;
+        default:
+            throw new Error("UNEXPECTED");
+    }
+}
+
+export function doAction(state: GameState, action: Action) {
+    switch (action.kind) {
+        case "connect":
+            state.energy -= 1;
+            state.money -= action.cost;
+            state.connections.push(action.connection);
+            removeOne(state.outstandingConnects, action);
+            state.menu = 'main';
+            return;
+        case "buy":
+        case "sell":
+            state.energy -= 1;
+            if (action.kind === "buy") {
+                state.money -= action.cost;
+                state.stash += action.amount;
+            } else {
+                state.money += action.cost;
+                state.stash -= action.amount;
+            }
+            // Always up total traffic
+            state.totalTraffic += action.amount;
+            for (const {outstandingDeals} of state.connections) {
+                if (removeOne(outstandingDeals, action)) {
+                    break;
+                }
+            }
+            state.menu = 'main';
+            return;
+        case "end-day":
+            state.day += 1;
+            state.energy = 4;
+            log(`DAY ${state.day}`);
+            for (const connection of state.connections) {
+                onConnectDayStart(connection);
+            }
+            state.menu = 'main';
+            return;
+        case "set-menu":
+            state.menu = action.menu;
+            return;
+        default:
+            throw new Error("Unexpected");
     }
 }
 
 export function createGameState(name: string): GameState {
 	return {
         day: 1,
-		name,
+        name,
+        menu: 'main',
         money: 300,
         tier: ConnectionTier.JUNKIE,
 		tolerance: 1,

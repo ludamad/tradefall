@@ -1,5 +1,8 @@
-import { Action, GameState, generateActions, score, doAction } from "../game"
-import { basePrice } from "../formulas";
+import { Action, GameState, generateActions, score, doAction, isGameOver, generateDealActions, generateConnectActions, PlayerConnectAction, getPotentialDealActions, PlayerDealAction, canAffordDeal, Connection, totalWorth } from "../game"
+import assert = require("assert");
+import { removeOne } from "../jsUtils";
+import { connectCost } from "../formulas";
+import { FINAL_DAY } from "../config";
 
 const clone = require('fast-clone');
 
@@ -11,7 +14,7 @@ export class MCTSNode {
     score() {
         return this.totalScore / Math.max(this.visits, 1);
     }
-    constructor(public moves: Action[], public parent: MCTSNode | undefined) {
+    constructor(public state:GameState, public moves: Action[], public parent: MCTSNode | undefined) {
         this.parent = parent;
         this.visits = 0;
         this.totalScore = 0;
@@ -19,14 +22,14 @@ export class MCTSNode {
         this.children = new Array(this.numUnexpandedMoves).fill(undefined);
     }
     debugPrint(indent=0) {
-        if (this.visits <= 100) {
+        if (this.visits <= 10) {
             return;
         }
         let str = '';
         for (let i = 0; i < indent; i++) {
             str += '  ';
         }
-        console.log(str + "Visits: " + this.visits + " Score: " + this.score().toFixed(0));
+        console.log(str + "Visits: " + this.visits + " Score: " + this.score().toFixed(0) + " Menu: " + this.state.menu);
         for (const child of this.children) {
             if (child) {
                 child.debugPrint(indent + 1);
@@ -35,46 +38,101 @@ export class MCTSNode {
     }
 }
 
-// Adapt to the expected API
-class GameAdapter {
-    constructor(public game: GameState) {
-    }
-    getState() {
-        return this.game;
-    }
-    moves() {
-        return generateActions(this.game);
-    }
-    gameOver() {
-        return this.game.day > 30;
-    }
-    setState(game: GameState) {
-        this.game = game;
-    }
-    cloneState(): GameState {
-        // TODO optimize
-        return clone(this.game);
-    }
-    playMove(action: Action) {
-        doAction(this.game, action);
-    }
-    score(): number {
-        return score(this.game);
+function simDeal(state: GameState, {kind, cost, amount}: PlayerDealAction) {
+    state.energy -= 1;
+    if (kind === "buy") {
+        state.money -= cost;
+        state.stash += amount;
+    } else {
+        state.money += cost;
+        state.stash -= amount;
     }
 }
 
-function likelyBestMove(gameState: GameState, actions: Action[]): Action {
-    let biggestAction: Action|undefined = undefined;
-    let biggestScore = -Infinity;
-    for (const action of actions) {
-        let s:number;
-        if (action.kind === 'sell') {
-            s = score(gameState, -action.amount, +action.cost);
-        } else if (action.kind === 'buy') {
-            s = score(gameState, +action.amount, -action.cost);
-        } else {
-            s = score(gameState);
+export function evaluateConnectPotential(state: GameState, connect: Connection): number {
+    const daysLeft = FINAL_DAY - state.day;
+    // Deal size is not always good as you get less value
+    const tonedDownDealSize = connect.dealSize ** 0.75;
+    // Ten days to make up cost
+    const baseProfitability = connectCost(connect.tier) / 10;
+    // Your total worth should be 5x the connect cost
+    const worthPenalty = Math.min(1, totalWorth(state) / (connectCost(connect.tier) * 5));
+    // TODO need to evaluate connection saturation??? softmax???
+    return baseProfitability * worthPenalty * daysLeft * connect.dealChance * tonedDownDealSize * connect.priceQuality;
+}
+
+export function evaluateDealPotential(state: GameState, performedAction: Action): number {
+    const {energy, stash, money} = state;
+    const deals = getPotentialDealActions(state);
+    if (performedAction.kind === "buy" || performedAction.kind === "sell") {
+        simDeal(state, performedAction);
+        removeOne(deals, performedAction);
+    } else if (performedAction.kind === "connect") {
+        state.energy -= 1;
+        state.money -= performedAction.cost;
+    }
+    while (state.energy > 0) {
+        const affordList = deals.filter(deal => canAffordDeal(state, deal));
+        let biggestAction: PlayerDealAction|undefined = undefined;
+        let biggestScore = -Infinity;
+        for (const action of affordList) {
+            let s:number;
+            if (action.kind === 'sell') {
+                s = score(state, -action.amount, +action.cost);
+            } else {
+                s = score(state, +action.amount, -action.cost);
+            }
+            if (s > biggestScore) {
+                biggestAction = action;
+                biggestScore = s;
+            }
         }
+        if (!biggestAction) {
+            // No more actions
+            break;
+        }
+        simDeal(state, biggestAction);
+        removeOne(deals, biggestAction);
+    }
+    const finalScore = score(state);
+    // Revert
+    Object.assign(state, {energy, stash, money});
+    return finalScore;
+}
+
+function likelyBestMove(state: GameState): Action {
+    // Null move heuristic:
+    let biggestAction: Action = {kind: 'end-day'};
+    if (state.energy <= 0) {
+        return biggestAction;
+    }
+    let biggestScore = score(state);
+    // In this phase, we don't care about the deal/connect paradigm
+    const connects = generateConnectActions(state);
+    const deals = generateDealActions(state);
+
+    // For each tier
+    const staticDealPotentials = [
+        0,
+        0,
+        0,
+        0,
+        0
+    ];
+
+    for (const action of connects) {
+        // Cache, same for each connection of tier
+        if (!staticDealPotentials[action.connection.tier]) {
+            staticDealPotentials[action.connection.tier] = evaluateDealPotential(state, action);
+        }
+        let s = staticDealPotentials[action.connection.tier] + evaluateConnectPotential(state, action.connection);
+        if (s > biggestScore) {
+            biggestAction = action;
+            biggestScore = s;
+        }
+    }
+    for (const action of deals) {
+        let s = evaluateDealPotential(state, action);
         if (s > biggestScore) {
             biggestAction = action;
             biggestScore = s;
@@ -87,28 +145,22 @@ function likelyBestMove(gameState: GameState, actions: Action[]): Action {
 }
 
 export class MCTS {
-    game: GameAdapter;
-    iterations: number;
-    exploration: number;
-    constructor(game: GameState, iterations = 2000, exploration = 1.41) {
-        this.game = new GameAdapter(game);
-        this.iterations = iterations;
-        this.exploration = exploration;
+    constructor(
+        public game: GameState,
+        public iterations = 3000, 
+        public exploration = 1.41
+    ) {
     }
 
     selectMove(): [Action, number] {
-        const originalState = this.game.getState();
-        const possibleMoves = this.game.moves();
-        const root = new MCTSNode(possibleMoves, undefined);
+        const originalState = this.game;
+        const possibleMoves = generateActions(originalState);
+        const root = new MCTSNode(originalState, possibleMoves, undefined);
 
         for (let i = 0; i < this.iterations; i++) {
-            this.game.setState(originalState);
-            const clonedState = this.game.cloneState();
-            this.game.setState(clonedState);
-
             const selectedNode = this.selectNode(root);
             const expandedNode = this.playAndExpand(selectedNode);
-            this.backprop(expandedNode, this.playout());
+            this.backprop(expandedNode, this.playout(expandedNode));
         }
 
         //choose move with highest average score
@@ -122,8 +174,6 @@ export class MCTS {
                 maxIndex = i;
             }
         }
-
-        this.game.setState(originalState);
         // root.debugPrint();
         return [possibleMoves[maxIndex], root.score()];
     }
@@ -146,11 +196,8 @@ export class MCTS {
                     maxIndex = i;
                 }
             }
-            const moves = root.moves;
-            this.game.playMove(moves[maxIndex])
-
             root = root.children[maxIndex] as MCTSNode;
-            if (this.game.gameOver()) {
+            if (isGameOver(root.state)) {
                 return root;
             }
         }
@@ -158,33 +205,36 @@ export class MCTS {
     }
 
     private playAndExpand(node: MCTSNode) {
-        if (this.game.gameOver()) {
+        if (isGameOver(node.state)) {
             return node;
         }
-        let moves = node.moves;
+        const cloneState = clone(node.state);
+        const moves = generateActions(cloneState);
+        assert.equal(moves.length, node.children.length);
         const childIndex = this.selectRandomUnexpandedChild(node);
-        this.game.playMove(moves[childIndex]);
+        doAction(cloneState, moves[childIndex]);
 
-        moves = this.game.moves();
-        const newNode = new MCTSNode(moves, node);
+        const newMoves = generateActions(cloneState);
+        const newNode = new MCTSNode(cloneState, newMoves, node);
         node.children[childIndex] = newNode;
         node.numUnexpandedMoves -= 1;
 
         return newNode
     }
 
-    private playout() {
-        while (!this.game.gameOver()) {
-            const moves = this.game.moves();
-            // 10% chance of true random
-            if (Math.random() < 0.1) {
-                const randomChoice = Math.floor(Math.random() * moves.length);
-                this.game.playMove(moves[randomChoice]);
-            } else {
-                this.game.playMove(likelyBestMove(this.game.getState(), moves));
-            }
+    private playout(node: MCTSNode) {
+        const state = clone(node.state);
+        while (!isGameOver(state)) {
+            // 10% chance of true random for connections and deals
+            // OR for deciding action category
+            // if (state.menu === 'main' || Math.random() < 0.1) {
+            //     const randomChoice = Math.floor(Math.random() * moves.length);
+            //     doAction(state, moves[randomChoice]);
+            // } else {
+            doAction(state, likelyBestMove(state));
+            // }
         }
-        return this.game.score();
+        return score(state);
     }
     private backprop(node: MCTSNode|undefined, reward) {
         while (node != null) {

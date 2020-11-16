@@ -2,6 +2,10 @@ let logDisabled = false;
 
 let messages: string[] = [];
 
+export function getMessages(): string[] {
+    return messages;
+}
+
 export function withLogDisabled<T>(f: () => T): T {
     const wasLogDisabled = logDisabled;
     logDisabled = true;
@@ -21,4 +25,7 @@ export function log(msg: string) {
     if (!logDisabled) {
         messages.push(msg);
     }
+}
+export function clearLogs() {
+    messages = [];
 }

@@ -95,11 +95,6 @@ export function any<T>(arr:T[], func:(T)=>boolean) {
     return false;
 }
 
-export function logAndReturn(obj: any) {
-    console.log(obj);
-    return obj;
-}
-
 export function hasProperty(obj: any, key: string) {
     return Object.prototype.hasOwnProperty.call(obj, key);
 }
@@ -116,28 +111,13 @@ export function append<T>(list: T[], obj: T) {
     return [...list, obj];
 }
 
-export function removeOne<T>(list: T[], obj: T) {
-    let found = false;
-    const copy:T[] = [];
-    for (const elem of list) {
-        if (elem === obj && !found) {
-            found = true;
-            continue;
-        }
-        copy.push(elem);
+export function removeOne<T>(list: T[], obj: T): boolean {
+    const idx = list.indexOf(obj);
+    if (idx >= 0) {
+        list.splice(idx, 1);
+        return true;
     }
-    return copy;
-}
-
-export function removeAll<T>(list: T[], obj: T) {
-    const copy:T[] = [];
-    for (const elem of list) {
-        if (elem === obj) {
-            continue;
-        }
-        copy.push(elem);
-    }
-    return copy;
+    return false;
 }
 
 export function interpolate(a, b, precision) {

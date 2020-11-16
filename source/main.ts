@@ -1,35 +1,53 @@
-import { createGameState, generateActions, ConnectionTier, doAction, score } from "./game";
+import { createGameState, ConnectionTier, doAction, score, generateDealActions, GameState } from "./game";
 import { consoleFlush, withLogDisabled } from "./log";
-import { generateConnect, onConnectDayStart } from "./connect";
+import { generateConnect, connectToString, dealToStringBrute } from "./connect";
 import { MCTS } from "./ai/mcts";
+import { FINAL_DAY } from "./config";
 const seedrandom = require('seedrandom');
 
 // const MAX_DAYS = 20;
 
 seedrandom('hello.', { global: true });
 const state = createGameState('Orlface')
-for (var i = 0; i < 2; i++) {
-    state.connections.push(generateConnect(ConnectionTier.JUNKIE, false));
-    state.connections.push(generateConnect(ConnectionTier.JUNKIE, true));
-    state.connections.push(generateConnect(ConnectionTier.JUNKIE, true));
-    state.connections.push(generateConnect(ConnectionTier.JUNKIE, false));
-    state.connections.push(generateConnect(ConnectionTier.JUNKIE, false));
-}
-function simulate() {
+export function simulate(state: GameState) {
+    for (var i = 0; i < 40; i++) {
+        state.outstandingConnects.push({
+            kind: 'connect',
+            connection: generateConnect(ConnectionTier.JUNKIE, i%2===0),
+            daysLeft: 2,
+            cost: 30
+        });
+    }
+    consoleFlush();
     for (var i = 0; i < 10000; i++) {
         seedrandom(`hello${i}`, { global: true });
         const mcts = new MCTS(state);
+        console.log(`... COMPUTING ACTION (${i+1}) ...`);
         const [mctsAction, mctsScore] = withLogDisabled(()=> {
             return mcts.selectMove();
         }) 
-        console.log("START SCORE " + score(state).toFixed(1))
-        console.log("Chosen: " + mctsAction.kind + ", predicted: " + mctsScore.toFixed(1));
+        if (mctsAction === undefined) {
+            break;
+        }
+        console.log(`Chosen: ${mctsAction.kind}, predicted score: ${Math.round(mctsScore)}pts`);
+        if (mctsAction.kind === "buy" || mctsAction.kind === "sell") {
+            console.log(dealToStringBrute(state, mctsAction));
+        } else if (mctsAction.kind === "connect") {
+            console.log(connectToString(mctsAction.connection));
+        } else if (mctsAction.kind === 'set-menu') {
+            console.log("CLICKING ", mctsAction.menu);
+        }
+        console.log(`... STATS (${i+1}) ...`);
         console.log("DAY " + state.day);
+        console.log(`STASH ${state.stash.toFixed(1)}g CASH $${state.money.toFixed(2)} SCORE ${Math.round(score(state))}pts`);
+        console.log(`CONNECTS ${state.connections.length} DEALS ${generateDealActions(state).length} TRAFFIC ${state.totalTraffic.toFixed(1)}g`);
+        console.log(`ENERGY ${state.energy} TIER ${state.tier}`);
+        console.log(`... DONE ACTION (${i+1}) ...`);
         doAction(state, mctsAction);
         consoleFlush();
-        if (state.day > 30) {
+        if (state.day > FINAL_DAY) {
             break;
         }
     }
 }
-withLogDisabled(simulate);
+simulate(state);

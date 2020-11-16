@@ -30,15 +30,15 @@ export function randomNickname() {
 }
 
 export function baseGramsForPrice(price: number) {
-    const BASE_MOD = 5.83119;
-    const unit = Math.log(price / BASE_MOD)/Math.log(6)
+    const BASE_MOD = 5.83119/1.09;
+    const unit = Math.log(price / BASE_MOD)/Math.log(8)
     return 10**unit - 1
 }
 export function basePrice(grams: number) {
     grams = Math.max(grams, 0);
     // Hack formula
-    const BASE_MOD = 5.83119;
-    return 6 ** Math.log10(grams + 1) * BASE_MOD;
+    const BASE_MOD = 5.83119/1.09;
+    return 8 ** Math.log10(grams + 1) * BASE_MOD;
 }
 
 export function connectCost(tier: ConnectionTier) {
