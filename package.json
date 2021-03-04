@@ -19,6 +19,8 @@
 		"fast-clone": "^1.5.13",
 		"gaussian": "^1.1.0",
 		"ink": "^3.0.8",
+		"ink-big-text": "^1.2.0",
+		"ink-gradient": "^2.0.0",
 		"ink-text-input": "^4.0.1",
 		"meow": "^8.0.0",
 		"react": "^17.0.1",

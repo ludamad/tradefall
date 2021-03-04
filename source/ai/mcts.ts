@@ -147,7 +147,7 @@ function likelyBestMove(state: GameState): Action {
 export class MCTS {
     constructor(
         public game: GameState,
-        public iterations = 3000, 
+        public iterations = 500, 
         public exploration = 1.41
     ) {
     }

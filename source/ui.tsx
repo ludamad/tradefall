@@ -7,23 +7,28 @@ import { withLogDisabled, getMessages, clearLogs } from './log';
 import { generateConnect, dealToString, dealToStringBrute, connectToString } from './connect';
 import { MCTS } from './ai/mcts';
 import { basePrice } from './formulas';
+
+import Gradient from 'ink-gradient';
+import BigText from 'ink-big-text';
+
 const seedrandom = require('seedrandom');
 	
 function GameStart(props: {onChooseName}) {
 	const [name, setName] = React.useState('scrub');
 	return <Box flexDirection="column">
+	<Gradient name="mind">
+		<BigText text="POWDER"/>
 <Text>{
-`    POWDER
-
-    [IIIII]
-     )"""(
-    /     \\
-   /   RX  \\
-   |\`-...-'|
- _ |\`-...-'j    _
-(\\)\`-.___.(I) _(/)
-  (I)  (/)(I)(\\)
-  `}</Text>
+`               [IIIII]
+                )"""(
+               /     \\
+              /   RX  \\
+              |\`-...-'|
+            _ |\`-...-'j    _
+           (\\)\`-.___.(I) _(/)
+             (I)  (/)(I)(\\)
+`}</Text>
+</Gradient>
 		<Text>Alright, <Text color="green">{name}</Text>.
 			  I know this isn't the life you envisioned, but you're here now.</Text>
 		{name !== 'scrub' ? undefined : showNameField()}
