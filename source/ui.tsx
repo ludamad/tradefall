@@ -14,30 +14,20 @@ import BigText from 'ink-big-text';
 const seedrandom = require('seedrandom');
 	
 function GameStart(props: {onChooseName}) {
-	const [name, setName] = React.useState('scrub');
+	const [name, setName] = React.useState('trader');
 	return <Box flexDirection="column">
 	<Gradient name="mind">
-		<BigText text="POWDER"/>
-<Text>{
-`               [IIIII]
-                )"""(
-               /     \\
-              /   RX  \\
-              |\`-...-'|
-            _ |\`-...-'j    _
-           (\\)\`-.___.(I) _(/)
-             (I)  (/)(I)(\\)
-`}</Text>
-</Gradient>
+		<BigText text="TRADEFALL"/>
+	</Gradient>
 		<Text>Alright, <Text color="green">{name}</Text>.
-			  I know this isn't the life you envisioned, but you're here now.</Text>
-		{name !== 'scrub' ? undefined : showNameField()}
+			  Let's enter a world of questing and trading!</Text>
+		{name !== 'trader' ? undefined : showNameField()}
 	</Box>;
 	function showNameField() {
 		return <>
-			<Text>Let's move quick. What's your <Text color="green">username</Text> on the boards, anyway?</Text>
+			<Text>Let's move quick. What's your <Text color="green">name</Text>, anyway?</Text>
 			<Box>
-				<Text>Your username: </Text>
+				<Text>Your name: </Text>
 				<Input onSubmit={onSubmit}/>
 			</Box>
 		</>;
@@ -53,26 +43,26 @@ type MenuProps = {state: GameState};
 
 function Stats({state}: MenuProps) {
 	return <>
-		<Text><Text color="green">{state.name}</Text> the {state.drugName} "{state.drugNickName}" dealer</Text>
+		<Text><Text color="green">{state.name}</Text> the Wise</Text>
 		<Box flexDirection="row">
 			<Box flexDirection="column" marginRight={5}>
 				<Text>Health: {state.health}</Text>
 				<Text>Cash: ${state.money.toFixed(2)}</Text>
-				<Text>Tolerance: {state.tolerance.toFixed(1)}/dose</Text>
+				{/* <Text>Tolerance: {state.tolerance.toFixed(1)}/dose</Text> */}
 				<Text>Total traffic: {state.totalTraffic.toFixed(1)}g</Text>
 				<Text>Total worth: ${totalWorth(state).toFixed(2)}</Text>
 				<Text>Connections: {state.connections.length}</Text>
 			</Box>
-			<Box flexDirection="column">
+			{/* <Box flexDirection="column">
 				<Text>Energy: {state.energy} missions</Text>
 				<Text>Stash: {state.stash.toFixed(1)}g</Text>
 				<Text>Today's Use: {state.todayUse} doses</Text>
 				<Text>Total Use: {state.totalUse.toFixed(1)}g</Text>
 				<Text>Score: {Math.round(score(state))}</Text>
 				<Text>Deals: {getPotentialDealActions(state).length}</Text>
-			</Box>
+			</Box> */}
 		</Box>
-		<Text>Base Prices: 1g/${basePrice(1).toFixed(2)}  10g/${basePrice(10).toFixed(2)}  100g/${basePrice(100).toFixed(2)}  1000g/${basePrice(1000).toFixed(2)}</Text>
+		{/* <Text>Base Prices: 1g/${basePrice(1).toFixed(2)}  10g/${basePrice(10).toFixed(2)}  100g/${basePrice(100).toFixed(2)}  1000g/${basePrice(1000).toFixed(2)}</Text> */}
 	</>;
 }
 
@@ -91,7 +81,7 @@ function MainMenu({state}: MenuProps) {
 function ConnectMenu({state}: MenuProps) {
 	return <>
 		<Text>Day {state.day}</Text>
-		<Text>You decide to call up some leads.</Text>
+		<Text>You decide to research some leads.</Text>
 		<Stats state={state}/>
 		{state.outstandingConnects.slice(0, 5).map(connectText)}
 	</>;
