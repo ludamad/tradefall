@@ -106,14 +106,14 @@ export type Action =
   | SetMenuAction;
 
 export type Menu =
-  | "main"
-  | "quest"
-  | "resources"
-  | "items"
-  | "equities"
-  | "offer"
-  | "crafting"
-  | "travel";
+  | "Main"
+  | "Quest"
+  | "Resources"
+  | "Items"
+  | "Equities"
+  | "Offer"
+  | "Crafting"
+  | "Travel";
 
 export interface SkillLevel {
   skill: Skill;

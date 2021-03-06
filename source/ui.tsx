@@ -141,7 +141,7 @@ function ResourceMenu({ state }: MenuProps) {
           onSubmit={setFocusResource}
           onExit={() => {
             // TODO proper react practice
-            state.menu = "main";
+            state.menu = "Main";
           }}
         />
       </>
@@ -158,7 +158,7 @@ function ResourceMenu({ state }: MenuProps) {
           onSubmit={setBuySell}
           onExit={() => {
             // TODO proper react practice
-            state.menu = "main";
+            state.menu = "Main";
           }}
         />
       </>
@@ -237,13 +237,13 @@ function Game({ state }: MenuProps) {
     };
   }, []);
   switch (state.menu) {
-    case "main":
+    case "Main":
       return <MainMenu state={state} />;
-    case "offer":
+    case "Offer":
       return <OfferMenu state={state} />;
-    case "crafting":
+    case "Crafting":
       return <CraftingMenu state={state} />;
-    case "resources":
+    case "Resources":
       return <ResourceMenu state={state} />;
     default:
       throw new Error("UNEXPECTED");

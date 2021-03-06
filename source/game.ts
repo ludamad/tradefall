@@ -82,19 +82,19 @@ export function generateDealActions(state: GameState): PlayerDealAction[] {
 export function generateActions(state: GameState): Action[] {
   const deals = state.energy <= 0 ? [] : generateDealActions(state);
   switch (state.menu) {
-    case "main":
+    case "Main":
       const options: Action[] = [{ kind: "end-day" }];
       if (deals.length > 0) {
-        options.push({ kind: "set-menu", menu: "offer" });
+        options.push({ kind: "set-menu", menu: "Offer" });
       }
-      options.push({ kind: "set-menu", menu: "crafting" });
-      options.push({ kind: "set-menu", menu: "equities" });
-      options.push({ kind: "set-menu", menu: "items" });
-      options.push({ kind: "set-menu", menu: "quest" });
-      options.push({ kind: "set-menu", menu: "resources" });
-      options.push({ kind: "set-menu", menu: "travel" });
+      options.push({ kind: "set-menu", menu: "Crafting" });
+      options.push({ kind: "set-menu", menu: "Equities" });
+      options.push({ kind: "set-menu", menu: "Items" });
+      options.push({ kind: "set-menu", menu: "Quest" });
+      options.push({ kind: "set-menu", menu: "Resources" });
+      options.push({ kind: "set-menu", menu: "Travel" });
       return options;
-    case "offer":
+    case "Offer":
       return deals;
     default:
       throw new Error("UNEXPECTED");
@@ -125,7 +125,7 @@ export function doAction(state: GameState, action: Action) {
       state.money -= action.cost;
       state.connections.push(action.connection);
       removeOne(state.outstandingConnects, action);
-      state.menu = "main";
+      state.menu = "Main";
       return;
     case "buy":
     case "sell":
@@ -142,7 +142,7 @@ export function doAction(state: GameState, action: Action) {
           break;
         }
       }
-      state.menu = "main";
+      state.menu = "Main";
       return;
     case "end-day":
       state.day += 1;
@@ -151,7 +151,7 @@ export function doAction(state: GameState, action: Action) {
       for (const connection of state.connections) {
         onConnectDayStart(connection);
       }
-      state.menu = "main";
+      state.menu = "Main";
       return;
     case "set-menu":
       state.menu = action.menu;
@@ -165,7 +165,7 @@ export function createGameState(name: string): GameState {
   return {
     day: 1,
     name,
-    menu: "main",
+    menu: "Main",
     money: 300,
     tier: ConnectionTier.JUNKIE,
     health: 100,
