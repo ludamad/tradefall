@@ -5,7 +5,7 @@ import { sum, removeOne } from "./jsUtils";
 import { log } from "./log";
 import { onConnectDayStart } from "./connect";
 import { FINAL_DAY } from "./config";
-import { GameState, PlayerDealAction, PlayerConnectAction, Action, ConnectionTier } from "./types";
+import { GameState, PlayerDealAction, PlayerConnectAction, Action, ConnectionTier, RESOURCE_TO_INDEX, Resource, REGION_TO_INDEX, Region, ResourcePile, SKILL_TO_INDEX, Skill, REGIONS, SKILLS, RESOURCES } from "./types";
 
 export function totalWorth(gamestate: GameState) {
     return gamestate.money + basePrice(gamestate.stash);
@@ -142,13 +142,32 @@ export function createGameState(name: string): GameState {
 		stash: 28,
 		health: 100,
 		energy: 4,
-		totalTraffic: 28,
+        totalTraffic: 28,
 		// In doses
 		todayUse: 1,
 		totalUse: 0,
 		drugName: randomName(),
         drugNickName: randomNickname(),
         connections: [],
-        outstandingConnects: []
+        outstandingConnects: [],
+        quests: [],
+        resources: makeResourceSet(),
+        regions: REGIONS.map((region: Region) => ({
+            region,
+            // TODO set prices
+            resourcePrices: makeResourceSet()
+        })),
+        skills: SKILLS.map((skill: Skill) => ({
+            skill,
+            level: 1
+        })),
 	};
 }
+
+function makeResourceSet(): ResourcePile[] {
+    return RESOURCES.map((resource: Resource) => ({
+        resource,
+        amount: 0
+    }));
+}
+

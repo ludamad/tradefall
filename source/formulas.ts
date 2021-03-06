@@ -3,7 +3,7 @@
 // import math
 
 import { rand } from "./jsUtils";
-import { ConnectionTier } from "./types";
+import { ConnectionTier, Encounter, GameState, SKILL_TO_INDEX } from "./types";
 
 const _NAME_START = [
     "dex", "rex", "phex", "acet",  
@@ -43,4 +43,14 @@ export function basePrice(grams: number) {
 
 export function connectCost(tier: ConnectionTier) {
     return 2 ** tier * 30;
+}
+
+export function enounterSuccessChance(state: GameState, encounter: Encounter) {
+    // TODO: Want to pass how much player invested here
+    for (const check of encounter.checks) {
+        const skillIndex = SKILL_TO_INDEX[check.skill];
+        const playerSkill = state.skills[skillIndex];
+        check.basis;
+        // Something something of player skill vs basis
+    }
 }
