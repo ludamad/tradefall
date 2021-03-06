@@ -29,56 +29,56 @@ export const ITEM_TABLE: { [k: string]: ItemEntry } = {
   "Iron Sword": {
     kind: "weapon",
     stats: ["attack"],
-    cost: ["iron"],
+    cost: ["Iron"],
   },
   "Iron Armor": {
     kind: "armor",
     stats: ["defence"],
-    cost: ["iron"],
+    cost: ["Iron"],
   },
   "Silver Sword": {
     kind: "weapon",
     stats: ["attack"],
-    cost: [/*major cost*/ "silver", "iron"],
+    cost: [/*major cost*/ "Silver", "Iron"],
   },
   "Silver Armor": {
     kind: "armor",
     stats: ["defence"],
-    cost: [/*major cost*/ "silver", "iron"],
+    cost: [/*major cost*/ "Silver", "Iron"],
   },
   "Trading Amulet": {
     kind: "amulet",
     stats: ["trading"],
-    cost: ["wood", "crystal"],
+    cost: ["Wood", "Crystal"],
   },
   "Divination Amulet": {
     kind: "amulet",
     stats: ["information"],
-    cost: ["wood", "crystal"],
+    cost: ["Wood", "Crystal"],
   },
   Rum: {
     kind: "good",
-    cost: ["sugar"],
+    cost: ["Sugar"],
   },
   Tools: {
     kind: "good",
-    cost: ["iron"],
+    cost: ["Iron"],
   },
   Bread: {
     kind: "good",
-    cost: ["wheat"],
+    cost: ["Wheat"],
   },
   Cigars: {
     kind: "good",
-    cost: ["tobacco"],
+    cost: ["Tobacco"],
   },
   Jerky: {
     kind: "good",
-    cost: ["meat"],
+    cost: ["Meat"],
   },
   Jewellery: {
     kind: "good",
-    cost: ["gold", "crystal"],
+    cost: ["Gold", "Crystal"],
   },
 };
 

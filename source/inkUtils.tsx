@@ -39,10 +39,15 @@ export function FocusableItem(props: FocusItemProps) {
 export interface ChoiceMenuProps {
   options: string[];
   onSubmit(text: string): void;
+  onExit?: () => void;
 }
 export function ChoiceMenu(props: ChoiceMenuProps) {
-  const [selected, setSelected] = useState(props.options[0]);
-  const chunks = splitArray(props.options, 4);
+  let options = props.options;
+  if (props.onExit) {
+    options = ["Back"].concat(options);
+  }
+  const [selected, setSelected] = useState(options[0]);
+  const chunks = splitArray(options, 4);
 
   function getOptionXy(option: string) {
     for (let y = 0; y < chunks.length; y++) {
@@ -58,18 +63,22 @@ export function ChoiceMenu(props: ChoiceMenuProps) {
   useInput((input: string, key: Key) => {
     // Submit with enter
     if (key.return) {
-      props.onSubmit(selected);
+      if (props.onExit && selected === "Back") {
+        props.onExit();
+      } else {
+        props.onSubmit(selected);
+      }
       return;
     }
-    const optionIdx = props.options.indexOf(selected);
+    const optionIdx = Math.max(options.indexOf(selected), 0);
     // Loop until we hit the same value again, then exit
     for (
-      let i = (optionIdx + 1) % props.options.length;
+      let i = (optionIdx + 1) % options.length;
       i != optionIdx;
-      i = (i + 1) % props.options.length
+      i = (i + 1) % options.length
     ) {
-      if (props.options[i].toLowerCase().startsWith(input.toLowerCase())) {
-        setSelected(props.options[i]);
+      if (options[i].toLowerCase().startsWith(input.toLowerCase())) {
+        setSelected(options[i]);
         return;
       }
     }
@@ -89,7 +98,7 @@ export function ChoiceMenu(props: ChoiceMenuProps) {
     y = (y + chunks.length) % chunks.length;
     x = (x + chunks[0].length) % chunks[0].length;
     const chunkValueOrUndefined = (chunks[y] || [])[x];
-    setSelected(chunkValueOrUndefined || props.options[0]);
+    setSelected(chunkValueOrUndefined || options[0]);
   });
 
   return (

@@ -40,7 +40,7 @@ export function generateConnect(
   const connection: Connection = {
     name: faker.internet.userName(),
     tier,
-    resource: "copper",
+    resource: "Copper",
     dealChance,
     priceQuality,
     dealSize,

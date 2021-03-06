@@ -107,6 +107,13 @@ export function getResource(state: GameState, resource: Resource) {
 export function getRegion(state: GameState, region: Region) {
   return state.regions[REGION_TO_INDEX[region]];
 }
+export function getCurrentRegionResource(
+  state: GameState,
+  resource: Resource
+): ResourcePile {
+  const resourceIndex = RESOURCE_TO_INDEX[resource];
+  return getRegion(state, state.region).resourcePrices[resourceIndex];
+}
 export function getSkill(state: GameState, skill: Skill) {
   return state.skills[SKILL_TO_INDEX[skill]];
 }
@@ -180,6 +187,10 @@ export function createGameState(name: string): GameState {
       level: 1,
     })),
   };
+}
+
+export function getSpread(_state: GameState, _resource: Resource) {
+  return 1.25;
 }
 
 function makeResourceSet(): ResourcePile[] {

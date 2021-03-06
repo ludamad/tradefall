@@ -29,20 +29,20 @@ export type Skill = keyof typeof SKILL_TO_INDEX;
 export const SKILLS = Object.keys(SKILL_TO_INDEX) as Skill[];
 
 export const RESOURCE_TO_INDEX = {
-  gold: 0,
-  silver: 1,
-  wheat: 2,
-  crystal: 3,
-  meat: 4,
-  iron: 5,
-  copper: 6,
+  Gold: 0,
+  Silver: 1,
+  Wheat: 2,
+  Crystal: 3,
+  Meat: 4,
+  Iron: 5,
+  Copper: 6,
   // sulfur: 7,
-  leather: 7,
+  Leather: 7,
   // silk: 8,
   // opium: 10,
-  wood: 7,
-  sugar: 8,
-  tobacco: 9,
+  Wood: 7,
+  Sugar: 8,
+  Tobacco: 9,
 };
 
 export type Resource = keyof typeof RESOURCE_TO_INDEX;
