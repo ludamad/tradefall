@@ -1,3 +1,4 @@
+import { random } from "./jsUtils";
 
 export const REGION_TO_INDEX = {
     "Questfall": 0,
@@ -19,7 +20,9 @@ export interface RegionStats {
 export const SKILL_TO_INDEX = {
     attack: 0,
     defence: 1,
-    information: 2,
+    trading: 2,
+    crafting: 3,
+    information: 4
 };
 
 export type Skill = keyof typeof SKILL_TO_INDEX;
@@ -33,15 +36,13 @@ export const RESOURCE_TO_INDEX = {
     meat: 4,
     iron: 5,
     copper: 6,
-    sulfur: 7,
-    leather: 8,
-    silk: 9,
-    opium: 10,
-    wood: 11,
-    rum: 12,
-    sugar: 13,
-    tobacco: 14,
-    tools: 15
+    // sulfur: 7,
+    leather: 7,
+    // silk: 8,
+    // opium: 10,
+    wood: 7,
+    sugar: 8,
+    tobacco: 9
 };
 
 export type Resource = keyof typeof RESOURCE_TO_INDEX;
