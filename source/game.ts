@@ -1,6 +1,6 @@
 // All game logic, amenable to simulation
 
-import { basePrice, connectCost, randomName, randomNickname } from "./formulas";
+import { basePrice, connectCost } from "./formulas";
 import { sum, removeOne, random } from "./jsUtils";
 import { log } from "./log";
 import { onConnectDayStart } from "./connect";
@@ -122,8 +122,6 @@ export function doAction(state: GameState, action: Action) {
                 state.money += action.cost;
                 getResource(state, action.resource).amount -= action.amount;
             }
-            // Always up total traffic
-            state.totalTraffic += action.amount;
             for (const {outstandingDeals} of state.connections) {
                 if (removeOne(outstandingDeals, action)) {
                     break;
@@ -155,15 +153,8 @@ export function createGameState(name: string): GameState {
         menu: 'main',
         money: 300,
         tier: ConnectionTier.JUNKIE,
-		tolerance: 1,
 		health: 100,
 		energy: 4,
-        totalTraffic: 28,
-		// In doses
-		todayUse: 1,
-		totalUse: 0,
-		drugName: randomName(),
-        drugNickName: randomNickname(),
         connections: [],
         outstandingConnects: [],
         quests: [],

@@ -113,13 +113,6 @@ export interface GameStateLegacy {
     tier: ConnectionTier;
     // 1 to 100
     health: number;
-    // tolerance amount, amount in grams to "get high"
-    tolerance: number;
-    totalTraffic: number;
-    todayUse: number;
-    totalUse: number;
-    drugName: string;
-    drugNickName: string;
     // Ties to others
     connections: Connection[];
     outstandingConnects: PlayerConnectAction[];
