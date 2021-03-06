@@ -87,6 +87,12 @@ export function generateActions(state: GameState): Action[] {
       if (deals.length > 0) {
         options.push({ kind: "set-menu", menu: "offer" });
       }
+      options.push({ kind: "set-menu", menu: "crafting" });
+      options.push({ kind: "set-menu", menu: "equities" });
+      options.push({ kind: "set-menu", menu: "items" });
+      options.push({ kind: "set-menu", menu: "quest" });
+      options.push({ kind: "set-menu", menu: "resources" });
+      options.push({ kind: "set-menu", menu: "travel" });
       return options;
     case "offer":
       return deals;

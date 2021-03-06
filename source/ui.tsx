@@ -1,18 +1,19 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { Input } from "./inkUtils";
+import { ChoiceMenu, Input } from "./inkUtils";
 import {
   createGameState,
   doAction,
   getPotentialDealActions,
   totalWorth,
   score,
+  generateActions,
 } from "./game";
 import { getMessages } from "./log";
 import { dealToStringBrute } from "./connect";
 import Gradient from "ink-gradient";
 import BigText from "ink-big-text";
-import { GameState, PlayerDealAction, ResourcePile } from "./types";
+import { Action, GameState, PlayerDealAction, ResourcePile } from "./types";
 
 const seedrandom = require("seedrandom");
 
@@ -131,6 +132,23 @@ function ResourceMenu({ state }: MenuProps) {
   }
 }
 
+function ActionMenu({ state }: MenuProps) {
+  const actions = generateActions(state);
+  const options: string[] = [];
+  const optionToAction: { [s: string]: Action } = {};
+  for (const action of actions) {
+    if (action.kind === "set-menu") {
+      options.push(action.menu);
+      optionToAction[action.menu] = action;
+    }
+  }
+  return <ChoiceMenu options={options} onSubmit={onSubmit} />;
+  function onSubmit(option: string) {
+    const action = optionToAction[option];
+    doAction(state, action);
+  }
+}
+
 function Game({ state }: MenuProps) {
   const [counter, setCounter] = React.useState(0);
   React.useEffect(() => {
@@ -150,17 +168,25 @@ function Game({ state }: MenuProps) {
       clearInterval(timer);
     };
   }, []);
-  switch (state.menu) {
-    case "main":
-      return <MainMenu state={state} />;
-    case "offer":
-      return <OfferMenu state={state} />;
-    case "crafting":
-      return <CraftingMenu state={state} />;
-    case "resources":
-      return <ResourceMenu state={state} />;
-    default:
-      throw new Error("UNEXPECTED");
+  return (
+    <>
+      {toMenu()}
+      <ActionMenu state={state} />
+    </>
+  );
+  function toMenu() {
+    switch (state.menu) {
+      case "main":
+        return <MainMenu state={state} />;
+      case "offer":
+        return <OfferMenu state={state} />;
+      case "crafting":
+        return <CraftingMenu state={state} />;
+      case "resources":
+        return <ResourceMenu state={state} />;
+      default:
+        throw new Error("UNEXPECTED");
+    }
   }
 }
 

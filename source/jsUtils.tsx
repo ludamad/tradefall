@@ -153,7 +153,6 @@ export function splitArray(myArray, size) {
 
   for (let index = 0; index < arrayLength; index += size) {
     const myChunk = myArray.slice(index, index + size);
-    // Do something if you want with the group
     chunks.push(myChunk);
   }
 
