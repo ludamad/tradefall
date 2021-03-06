@@ -48,14 +48,12 @@ function Stats({state}: MenuProps) {
 		<Box flexDirection="row">
 			<Box flexDirection="column" marginRight={5}>
 				<Text>Health: {state.health}</Text>
-				<Text>Cash: ${state.money.toFixed(2)}</Text>
-				<Text>Total worth: ${totalWorth(state).toFixed(2)}</Text>
-				<Text>Connections: {state.connections.length}</Text>
+				<Text>Cash: {Math.round(state.money)}GP</Text>
+				{/* <Text>Total : {Math.round(state.money)}GP</Text> */}
 			</Box>
 			<Box flexDirection="column">
 				<Text>Energy: {state.energy}</Text>
 				<Text>Score: {Math.round(score(state))}</Text>
-				<Text>Offers: {getPotentialDealActions(state).length}</Text>
 			</Box>
 		</Box>
 		{/* <Text>Base Prices: 1g/${basePrice(1).toFixed(2)}  10g/${basePrice(10).toFixed(2)}  100g/${basePrice(100).toFixed(2)}  1000g/${basePrice(1000).toFixed(2)}</Text> */}
@@ -65,7 +63,7 @@ function Stats({state}: MenuProps) {
 function MainMenu({state}: MenuProps) {
 	return <>
 		<Text>Day {state.day}</Text>
-		<Text>You sit by your phone contemplating your next move.</Text>
+		<Text>You find yourself in {state.region}.</Text>
 		<Stats state={state}/>
 		{getMessages().slice(0, 5).map(msgText)}
 	</>;
@@ -103,14 +101,14 @@ function Game({state}: MenuProps) {
 	React.useEffect(() => {
 		const timer = setInterval(() => {
 			seedrandom(`hello${counter}`, { global: true });
-			const mcts = new MCTS(state);
-			const [mctsAction, _mctsScore] = withLogDisabled(()=> {
-				return mcts.selectMove();
-			})
-			if (mctsAction) {
-				doAction(state, mctsAction);
-			}
-			clearLogs();
+			// const mcts = new MCTS(state);
+			// const [mctsAction, _mctsScore] = withLogDisabled(()=> {
+			// 	return mcts.selectMove();
+			// })
+			// if (mctsAction) {
+			// 	doAction(state, mctsAction);
+			// }
+			// clearLogs();
 			setCounter(previousCounter => previousCounter + 1);
 		}, 1);
 		return () => {
@@ -131,14 +129,14 @@ export function App() {
 	if (!state) {
 		return <GameStart onChooseName={name => {
 			const state = createGameState(name);
-			for (var i = 0; i < 40; i++) {
-				state.outstandingConnects.push({
-					kind: 'connect',
-					connection: generateConnect(ConnectionTier.JUNKIE, i%2===0),
-					daysLeft: 2,
-					cost: 30
-				});
-			}
+			// for (var i = 0; i < 40; i++) {
+			// 	state.outstandingConnects.push({
+			// 		kind: 'connect',
+			// 		connection: generateConnect(ConnectionTier.JUNKIE, i%2===0),
+			// 		daysLeft: 2,
+			// 		cost: 30
+			// 	});
+			// }
 			setState(state);
 		}} />;
 	}

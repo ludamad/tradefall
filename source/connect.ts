@@ -21,7 +21,7 @@ export function generateConnect(tier: ConnectionTier, sellsToPlayer: boolean): C
     const connection: Connection = {
         name: faker.internet.userName(),
         tier,
-        resource: 'silk',
+        resource: 'copper',
         dealChance,
         priceQuality,
         dealSize,

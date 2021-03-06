@@ -143,6 +143,7 @@ export interface GameState extends GameStateLegacy {
     money: number;
     menu: Menu;
     energy: number;
+    region: Region;
     // Current available quests
     quests: Encounter[];
     // Indexed by skill index
