@@ -166,7 +166,7 @@ export function createGameState(name: string): GameState {
       region,
       resourcePrices: RESOURCES.map((resource: Resource) => ({
         resource,
-        amount: random([2, 4, 6]),
+        amount: random([8, 10, 12]),
       })),
     })),
     skills: SKILLS.map((skill: Skill) => ({

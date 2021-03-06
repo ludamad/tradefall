@@ -8,25 +8,11 @@ import {
   totalWorth,
   score,
 } from "./game";
-import { simulate } from "./main";
-import { withLogDisabled, getMessages, clearLogs } from "./log";
-import {
-  generateConnect,
-  dealToString,
-  dealToStringBrute,
-  connectToString,
-} from "./connect";
-import { MCTS } from "./ai/mcts";
-import { basePrice } from "./formulas";
-
+import { getMessages } from "./log";
+import { dealToStringBrute } from "./connect";
 import Gradient from "ink-gradient";
 import BigText from "ink-big-text";
-import {
-  GameState,
-  PlayerConnectAction,
-  PlayerDealAction,
-  ConnectionTier,
-} from "./types";
+import { GameState, PlayerDealAction, ResourcePile } from "./types";
 
 const seedrandom = require("seedrandom");
 
@@ -76,14 +62,12 @@ function Stats({ state }: MenuProps) {
         <Box flexDirection="column" marginRight={5}>
           <Text>Health: {state.health}</Text>
           <Text>Cash: {Math.round(state.money)}GP</Text>
-          {/* <Text>Total : {Math.round(state.money)}GP</Text> */}
         </Box>
         <Box flexDirection="column">
           <Text>Energy: {state.energy}</Text>
           <Text>Score: {Math.round(score(state))}</Text>
         </Box>
       </Box>
-      {/* <Text>Base Prices: 1g/${basePrice(1).toFixed(2)}  10g/${basePrice(10).toFixed(2)}  100g/${basePrice(100).toFixed(2)}  1000g/${basePrice(1000).toFixed(2)}</Text> */}
     </>
   );
 }
@@ -116,6 +100,37 @@ function OfferMenu({ state }: MenuProps) {
   }
 }
 
+function CraftingMenu({ state }: MenuProps) {
+  return (
+    <>
+      <Text>Day {state.day}</Text>
+      <Text>You decide to do some deals.</Text>
+      <Stats state={state} />
+      {getPotentialDealActions(state).slice(0, 5).map(dealText)}
+    </>
+  );
+  function dealText(deal: PlayerDealAction, i) {
+    return <Text key={i}>{dealToStringBrute(state, deal)}</Text>;
+  }
+}
+
+function ResourceMenu({ state }: MenuProps) {
+  return (
+    <>
+      <Text>Day {state.day}</Text>
+      {state.resources.map(renderResource)}
+      <Stats state={state} />
+    </>
+  );
+  function renderResource(resource: ResourcePile, i) {
+    return (
+      <Text key={i}>
+        {resource.amount} {resource.resource}
+      </Text>
+    );
+  }
+}
+
 function Game({ state }: MenuProps) {
   const [counter, setCounter] = React.useState(0);
   React.useEffect(() => {
@@ -140,6 +155,10 @@ function Game({ state }: MenuProps) {
       return <MainMenu state={state} />;
     case "offer":
       return <OfferMenu state={state} />;
+    case "crafting":
+      return <CraftingMenu state={state} />;
+    case "resources":
+      return <ResourceMenu state={state} />;
     default:
       throw new Error("UNEXPECTED");
   }
