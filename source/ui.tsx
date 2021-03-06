@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Text } from "ink";
 import { ChoiceMenu, Input } from "./inkUtils";
-import Table from "ink-table";
 import {
   createGameState,
   doAction,
@@ -9,10 +8,7 @@ import {
   totalWorth,
   score,
   generateActions,
-  getResource,
   getRegion,
-  getCurrentRegionResource,
-  getSpread,
 } from "./game";
 import { getMessages } from "./log";
 import { dealToStringBrute } from "./connect";
@@ -20,12 +16,16 @@ import Gradient from "ink-gradient";
 import BigText from "ink-big-text";
 import {
   Action,
+  ForegroundColor,
   GameState,
   PlayerDealAction,
+  Region,
+  REGIONS,
+  RegionStats,
   Resource,
-  ResourcePile,
-  RESOURCES,
+  RESOURCE_TO_INDEX,
 } from "./types";
+import { ResourceMenu } from "./resources";
 
 const seedrandom = require("seedrandom");
 
@@ -63,7 +63,7 @@ function GameStart(props: { onChooseName }) {
     }
   }
 }
-type MenuProps = { state: GameState };
+export type MenuProps = { state: GameState };
 
 function Stats({ state }: MenuProps) {
   return (
@@ -85,19 +85,23 @@ function Stats({ state }: MenuProps) {
   );
 }
 
+export function RecentLogs() {
+  return <>{getMessages().slice(0, 5).map(msgText)}</>;
+  function msgText(msg: string, i) {
+    return <Text key={i}>{msg}</Text>;
+  }
+}
+
 function MainMenu({ state }: MenuProps) {
   return (
     <>
       <Text>Day {state.day}</Text>
       <Text>You find yourself in {state.region}.</Text>
       <Stats state={state} />
-      {getMessages().slice(0, 5).map(msgText)}
+      <RecentLogs />
       <ActionMenu state={state} />
     </>
   );
-  function msgText(msg: string, i) {
-    return <Text key={i}>{msg}</Text>;
-  }
 }
 
 function OfferMenu({ state }: MenuProps) {
@@ -124,79 +128,24 @@ function CraftingMenu({ state }: MenuProps) {
   );
 }
 
-function ResourceMenu({ state }: MenuProps) {
-  const [focusResource, setFocusResource] = useState(
-    undefined as string | undefined
-  );
-  const [buySell, setBuySell] = useState(undefined as string | undefined);
-
-  if (!focusResource) {
-    return (
-      <>
-        <Text>Day {state.day}</Text>
-        <Table data={state.resources.map(toEntry)} />
-        <Text>Trade which resource?</Text>
-        <ChoiceMenu
-          options={RESOURCES}
-          onSubmit={setFocusResource}
-          onExit={() => {
-            // TODO proper react practice
-            state.menu = "Main";
-          }}
-        />
-      </>
-    );
-  }
-  if (!buySell) {
-    return (
-      <>
-        <Text>Day {state.day}</Text>
-        <Table data={state.resources.map(toEntry)} />
-        <Text>Buy or sell?</Text>
-        <ChoiceMenu
-          options={["Buy", "Sell"]}
-          onSubmit={setBuySell}
-          onExit={() => {
-            // TODO proper react practice
-            state.menu = "Main";
-          }}
-        />
-      </>
-    );
-  }
+export function TravelMenu({ state }: MenuProps) {
   return (
     <>
-      <Text>Day {state.day}</Text>
-      <Table data={state.resources.map(toEntry)} />
-      <Text>How much do you want to {buySell.toLowerCase()}?</Text>
-      <Input onSubmit={onFinalize} />
+      <Text>Where would you like to travel?</Text>
+      <ChoiceMenu
+        options={REGIONS}
+        onSubmit={setRegion}
+        onExit={() => {
+          // TODO proper react practice
+          state.menu = "Main";
+        }}
+      />
     </>
   );
-  function onFinalize(rawAmount: string) {
-    setFocusResource(undefined);
-    setBuySell(undefined);
-    const amount = parseInt(rawAmount);
-    if (amount === 0 || isNaN(+amount)) {
-      return;
-    }
-    if (buySell === "Sell") {
-      getResource(state, focusResource as Resource).amount += -amount;
-    } else {
-      getResource(state, focusResource as Resource).amount += +amount;
-    }
-  }
-  function toEntry(resource: ResourcePile, _i) {
-    const regionResource = getCurrentRegionResource(state, resource.resource);
-    const sellPrice =
-      regionResource.amount / getSpread(state, resource.resource);
-    const buyPrice =
-      regionResource.amount * getSpread(state, resource.resource);
-    return {
-      Name: resource.resource,
-      Amount: resource.amount,
-      Sell: `${sellPrice.toFixed(1)}GP`,
-      Buy: `${buyPrice.toFixed(1)}GP`,
-    };
+  function setRegion(region: Region) {
+    state.region = region;
+    state.energy -= 1;
+    state.menu = "Main";
   }
 }
 
@@ -245,6 +194,8 @@ function Game({ state }: MenuProps) {
       return <CraftingMenu state={state} />;
     case "Resources":
       return <ResourceMenu state={state} />;
+    case "Travel":
+      return <TravelMenu state={state} />;
     default:
       throw new Error("UNEXPECTED");
   }

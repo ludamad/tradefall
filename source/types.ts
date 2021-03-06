@@ -120,6 +120,26 @@ export interface SkillLevel {
   level: number;
 }
 
+export type ForegroundColor =
+  | "black"
+  | "red"
+  | "green"
+  | "yellow"
+  | "blue"
+  | "magenta"
+  | "cyan"
+  | "white"
+  | "gray"
+  | "grey"
+  | "blackBright"
+  | "redBright"
+  | "greenBright"
+  | "yellowBright"
+  | "blueBright"
+  | "magentaBright"
+  | "cyanBright"
+  | "whiteBright";
+
 export interface GameStateLegacy {
   /////// START OF OLD STUFF - from drug game
   // Based on total traffic, shown as levelup - 100 grams for level 2?

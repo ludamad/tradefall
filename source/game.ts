@@ -21,6 +21,7 @@ import {
   REGIONS,
   SKILLS,
   RESOURCES,
+  RegionStats,
 } from "./types";
 
 export function totalWorth(gamestate: GameState) {
@@ -77,6 +78,42 @@ export function generateDealActions(state: GameState): PlayerDealAction[] {
     }
   }
   return actions;
+}
+
+export function lowestPrice(
+  state: GameState,
+  resource: Resource
+): [number, Region] {
+  let lowest = 999999;
+  let lowestRegion: Region | undefined = undefined;
+  for (const region of state.regions) {
+    const p = regionBasePrice(region, resource);
+    if (p < lowest) {
+      lowest = p;
+      lowestRegion = region.region;
+    }
+  }
+  return [lowest, lowestRegion as Region];
+}
+
+export function regionBasePrice(region: RegionStats, resource: Resource) {
+  return region.resourcePrices[RESOURCE_TO_INDEX[resource]].amount;
+}
+
+export function highestPrice(
+  state: GameState,
+  resource: Resource
+): [number, Region] {
+  let highest = -1;
+  let highestRegion: Region | undefined = undefined;
+  for (const region of state.regions) {
+    const p = regionBasePrice(region, resource);
+    if (p > highest) {
+      highest = p;
+      highestRegion = region.region;
+    }
+  }
+  return [highest, highestRegion as Region];
 }
 
 export function generateActions(state: GameState): Action[] {
@@ -161,6 +198,9 @@ export function doAction(state: GameState, action: Action) {
   }
 }
 
+const gaussian = require("gaussian");
+const priceDistribution = gaussian(10, 5);
+
 export function createGameState(name: string): GameState {
   return {
     day: 1,
@@ -179,7 +219,7 @@ export function createGameState(name: string): GameState {
       region,
       resourcePrices: RESOURCES.map((resource: Resource) => ({
         resource,
-        amount: random([8, 10, 12]),
+        amount: Math.max(4, priceDistribution.ppf(Math.random())),
       })),
     })),
     skills: SKILLS.map((skill: Skill) => ({
