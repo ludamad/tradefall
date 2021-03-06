@@ -2,8 +2,8 @@
 // import random
 // import math
 
-import { ConnectionTier } from "./game";
 import { rand } from "./jsUtils";
+import { ConnectionTier } from "./types";
 
 const _NAME_START = [
     "dex", "rex", "phex", "acet",  

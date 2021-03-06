@@ -1,8 +1,9 @@
-import { createGameState, ConnectionTier, doAction, score, generateDealActions, GameState } from "./game";
+import { createGameState, doAction, score, generateDealActions } from "./game";
 import { consoleFlush, withLogDisabled } from "./log";
 import { generateConnect, connectToString, dealToStringBrute } from "./connect";
 import { MCTS } from "./ai/mcts";
 import { FINAL_DAY } from "./config";
+import { GameState, ConnectionTier } from "./types";
 const seedrandom = require('seedrandom');
 
 // const MAX_DAYS = 20;

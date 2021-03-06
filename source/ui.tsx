@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 import { Input } from './inkUtils';
-import { createGameState, GameState, ConnectionTier, doAction, getPotentialDealActions, PlayerDealAction, PlayerConnectAction, totalWorth, score } from './game';
+import { createGameState, doAction, getPotentialDealActions, totalWorth, score } from './game';
 import { simulate } from './main';
 import { withLogDisabled, getMessages, clearLogs } from './log';
 import { generateConnect, dealToString, dealToStringBrute, connectToString } from './connect';
@@ -10,6 +10,7 @@ import { basePrice } from './formulas';
 
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
+import { GameState, PlayerConnectAction, PlayerDealAction, ConnectionTier } from './types';
 
 const seedrandom = require('seedrandom');
 	

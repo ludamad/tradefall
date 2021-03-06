@@ -1,7 +1,7 @@
-import { ConnectionTier, Connection, PlayerDealAction, GameState } from "./game";
 import { clamp, rand, randRange } from "./jsUtils";
 import { basePrice } from "./formulas";
 import { log } from "./log";
+import { Connection, ConnectionTier, PlayerDealAction, GameState } from "./types";
 
 const faker = require("faker");
 const gaussian = require('gaussian');

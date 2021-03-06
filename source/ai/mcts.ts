@@ -1,8 +1,9 @@
-import { Action, GameState, generateActions, score, doAction, isGameOver, generateDealActions, generateConnectActions, PlayerConnectAction, getPotentialDealActions, PlayerDealAction, canAffordDeal, Connection, totalWorth } from "../game"
+import { generateActions, score, doAction, isGameOver, generateDealActions, generateConnectActions, getPotentialDealActions, canAffordDeal, totalWorth } from "../game"
 import assert = require("assert");
 import { removeOne } from "../jsUtils";
 import { connectCost } from "../formulas";
 import { FINAL_DAY } from "../config";
+import { GameState, Action, PlayerDealAction, Connection } from "../types";
 
 const clone = require('fast-clone');
 
@@ -14,7 +15,7 @@ export class MCTSNode {
     score() {
         return this.totalScore / Math.max(this.visits, 1);
     }
-    constructor(public state:GameState, public moves: Action[], public parent: MCTSNode | undefined) {
+    constructor(public state: GameState, public moves: Action[], public parent: MCTSNode | undefined) {
         this.parent = parent;
         this.visits = 0;
         this.totalScore = 0;
