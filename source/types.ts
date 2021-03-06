@@ -65,12 +65,14 @@ export interface PlayerDealAction {
     kind: 'buy' | 'sell';
     daysLeft: number;
     amount: number;
+    resource: Resource;
     cost: number;
 }
 
 export interface Connection {
     name: string;
     tier: ConnectionTier;
+    resource: Resource;
     priceQuality: number;
     dealChance: number;
     dealSize: number;
@@ -113,8 +115,6 @@ export interface GameStateLegacy {
     health: number;
     // tolerance amount, amount in grams to "get high"
     tolerance: number;
-    // drug amount in grams
-    stash: number;
     totalTraffic: number;
     todayUse: number;
     totalUse: number;

@@ -49,19 +49,14 @@ function Stats({state}: MenuProps) {
 			<Box flexDirection="column" marginRight={5}>
 				<Text>Health: {state.health}</Text>
 				<Text>Cash: ${state.money.toFixed(2)}</Text>
-				{/* <Text>Tolerance: {state.tolerance.toFixed(1)}/dose</Text> */}
-				<Text>Total traffic: {state.totalTraffic.toFixed(1)}g</Text>
 				<Text>Total worth: ${totalWorth(state).toFixed(2)}</Text>
 				<Text>Connections: {state.connections.length}</Text>
 			</Box>
-			{/* <Box flexDirection="column">
-				<Text>Energy: {state.energy} missions</Text>
-				<Text>Stash: {state.stash.toFixed(1)}g</Text>
-				<Text>Today's Use: {state.todayUse} doses</Text>
-				<Text>Total Use: {state.totalUse.toFixed(1)}g</Text>
+			<Box flexDirection="column">
+				<Text>Energy: {state.energy}</Text>
 				<Text>Score: {Math.round(score(state))}</Text>
-				<Text>Deals: {getPotentialDealActions(state).length}</Text>
-			</Box> */}
+				<Text>Offers: {getPotentialDealActions(state).length}</Text>
+			</Box>
 		</Box>
 		{/* <Text>Base Prices: 1g/${basePrice(1).toFixed(2)}  10g/${basePrice(10).toFixed(2)}  100g/${basePrice(100).toFixed(2)}  1000g/${basePrice(1000).toFixed(2)}</Text> */}
 	</>;

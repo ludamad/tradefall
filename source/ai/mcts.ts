@@ -3,7 +3,7 @@ import assert = require("assert");
 import { removeOne } from "../jsUtils";
 import { connectCost } from "../formulas";
 import { FINAL_DAY } from "../config";
-import { GameState, Action, PlayerDealAction, Connection } from "../types";
+import { GameState, Action, PlayerDealAction, Connection, RESOURCE_TO_INDEX } from "../types";
 
 const clone = require('fast-clone');
 
@@ -39,14 +39,14 @@ export class MCTSNode {
     }
 }
 
-function simDeal(state: GameState, {kind, cost, amount}: PlayerDealAction) {
+function simDeal(state: GameState, {kind, cost, amount, resource}: PlayerDealAction) {
     state.energy -= 1;
     if (kind === "buy") {
         state.money -= cost;
-        state.stash += amount;
+        state.resources[RESOURCE_TO_INDEX[resource]].amount += amount;
     } else {
         state.money += cost;
-        state.stash -= amount;
+        state.resources[RESOURCE_TO_INDEX[resource]].amount += amount;
     }
 }
 
@@ -63,7 +63,7 @@ export function evaluateConnectPotential(state: GameState, connect: Connection):
 }
 
 export function evaluateDealPotential(state: GameState, performedAction: Action): number {
-    const {energy, stash, money} = state;
+    const {energy, resources, money} = state;
     const deals = getPotentialDealActions(state);
     if (performedAction.kind === "buy" || performedAction.kind === "sell") {
         simDeal(state, performedAction);
@@ -79,9 +79,11 @@ export function evaluateDealPotential(state: GameState, performedAction: Action)
         for (const action of affordList) {
             let s:number;
             if (action.kind === 'sell') {
-                s = score(state, -action.amount, +action.cost);
+                // TODO score trade
+                s = score(state) - action.amount * 10 + action.cost;
             } else {
-                s = score(state, +action.amount, -action.cost);
+                // TODO score trade
+                s = score(state) + action.amount * 10 - action.cost;
             }
             if (s > biggestScore) {
                 biggestAction = action;
@@ -97,7 +99,7 @@ export function evaluateDealPotential(state: GameState, performedAction: Action)
     }
     const finalScore = score(state);
     // Revert
-    Object.assign(state, {energy, stash, money});
+    Object.assign(state, {energy, resources, money});
     return finalScore;
 }
 

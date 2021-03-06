@@ -40,7 +40,6 @@ export function simulate(state: GameState) {
         }
         console.log(`... STATS (${i+1}) ...`);
         console.log("DAY " + state.day);
-        console.log(`STASH ${state.stash.toFixed(1)}g CASH $${state.money.toFixed(2)} SCORE ${Math.round(score(state))}pts`);
         console.log(`CONNECTS ${state.connections.length} DEALS ${generateDealActions(state).length} TRAFFIC ${state.totalTraffic.toFixed(1)}g`);
         console.log(`ENERGY ${state.energy} TIER ${state.tier}`);
         console.log(`... DONE ACTION (${i+1}) ...`);

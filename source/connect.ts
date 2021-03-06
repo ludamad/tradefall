@@ -21,6 +21,7 @@ export function generateConnect(tier: ConnectionTier, sellsToPlayer: boolean): C
     const connection: Connection = {
         name: faker.internet.userName(),
         tier,
+        resource: 'silk',
         dealChance,
         priceQuality,
         dealSize,
@@ -77,6 +78,7 @@ export function onConnectDayStart(connection: Connection) {
         const cost = basePrice(amount) * (isBuy ? 1 / priceQuality : priceQuality);
         const newDeal: PlayerDealAction = {
             kind: isBuy ? 'buy' : 'sell',
+            resource: connection.resource,
             daysLeft,
             amount,
             cost

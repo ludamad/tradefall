@@ -1,36 +1,43 @@
 // All game logic, amenable to simulation
 
 import { basePrice, connectCost, randomName, randomNickname } from "./formulas";
-import { sum, removeOne } from "./jsUtils";
+import { sum, removeOne, random } from "./jsUtils";
 import { log } from "./log";
 import { onConnectDayStart } from "./connect";
 import { FINAL_DAY } from "./config";
 import { GameState, PlayerDealAction, PlayerConnectAction, Action, ConnectionTier, RESOURCE_TO_INDEX, Resource, REGION_TO_INDEX, Region, ResourcePile, SKILL_TO_INDEX, Skill, REGIONS, SKILLS, RESOURCES } from "./types";
 
 export function totalWorth(gamestate: GameState) {
-    return gamestate.money + basePrice(gamestate.stash);
+    const {resources} = gamestate;
+    let value = gamestate.money;
+    for (const resource of resources) {
+        value += resource.amount * 10;
+    }
+    return value;
 }
 
 export function isGameOver(gamestate: GameState) {
     return gamestate.day > FINAL_DAY;
 }
 
-export function score(gamestate: GameState, stashAdjust=0, moneyAdjust=0) {
-    // TODO, more
-    return gamestate.money + moneyAdjust
-        + basePrice(gamestate.stash + stashAdjust);
+export function score(gamestate: GameState) {
+    let score = 0;
+    for (const resource of gamestate.resources) {
+        score += resource.amount * 10;
+    }
+    return gamestate.money; // + basePrice();
         // + connectCost(gamestate.tier)
         // + sum(gamestate.connections, (c: Connection) => connectCost(c.tier)/2);
 }
 
 export function canAffordDeal(
-    {money, stash}: GameState, 
-    {kind, cost, amount}: PlayerDealAction
+    state: GameState, 
+    {kind, cost, amount, resource}: PlayerDealAction
 ): boolean {
     if (kind === 'buy') {
-        return cost <= money;
+        return cost <= state.money;
     } else {
-        return amount <= stash;
+        return amount <= getResource(state, resource).amount;
     }
 }
 
@@ -86,6 +93,16 @@ export function generateActions(state: GameState): Action[] {
     }
 }
 
+export function getResource(state: GameState, resource: Resource) {
+    return state.resources[RESOURCE_TO_INDEX[resource]];
+}
+export function getRegion(state: GameState, region: Region) {
+    return state.regions[REGION_TO_INDEX[region]];
+}
+export function getSkill(state: GameState, skill: Skill) {
+    return state.skills[SKILL_TO_INDEX[skill]];
+}
+
 export function doAction(state: GameState, action: Action) {
     switch (action.kind) {
         case "connect":
@@ -100,10 +117,10 @@ export function doAction(state: GameState, action: Action) {
             state.energy -= 1;
             if (action.kind === "buy") {
                 state.money -= action.cost;
-                state.stash += action.amount;
+                getResource(state, action.resource).amount += action.amount;
             } else {
                 state.money += action.cost;
-                state.stash -= action.amount;
+                getResource(state, action.resource).amount -= action.amount;
             }
             // Always up total traffic
             state.totalTraffic += action.amount;
@@ -139,7 +156,6 @@ export function createGameState(name: string): GameState {
         money: 300,
         tier: ConnectionTier.JUNKIE,
 		tolerance: 1,
-		stash: 28,
 		health: 100,
 		energy: 4,
         totalTraffic: 28,
@@ -154,8 +170,10 @@ export function createGameState(name: string): GameState {
         resources: makeResourceSet(),
         regions: REGIONS.map((region: Region) => ({
             region,
-            // TODO set prices
-            resourcePrices: makeResourceSet()
+            resourcePrices: RESOURCES.map((resource: Resource) => ({
+                resource,
+                amount: random([2,4,6])
+            }))
         })),
         skills: SKILLS.map((skill: Skill) => ({
             skill,
