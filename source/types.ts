@@ -98,11 +98,18 @@ export interface SetMenuAction {
   kind: "set-menu";
   menu: Menu;
 }
+export interface PlayerTradeAction {
+  kind: "trade";
+  resource: Resource;
+  isBuy: boolean;
+  amount: number;
+}
 
 export type Action =
   | PlayerConnectAction
   | PlayerDealAction
   | PlayerEndDayAction
+  | PlayerTradeAction
   | SetMenuAction;
 
 export type Menu =

@@ -1,14 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import TextInput from "ink-text-input";
 import { useInput, Text, Key, Box } from "ink";
-import { RESOURCES } from "./types";
+import { ForegroundColor, RESOURCES } from "./types";
 import { splitArray } from "./jsUtils";
 
 export interface InputProps {
+  defaultValue?: string;
   onSubmit(text: string): void;
 }
 export function Input(props: InputProps) {
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = React.useState(props.defaultValue || "");
   return (
     <TextInput
       showCursor={true}
@@ -125,5 +126,33 @@ export function ChoiceTest() {
       onSubmit={(option) => console.log(option)}
       options={RESOURCES}
     />
+  );
+}
+
+export function CustomCell({ children }: React.PropsWithChildren<{}>) {
+  let color: ForegroundColor | undefined = undefined;
+  let text = children as string;
+  let bold: boolean | undefined = undefined;
+  // Use a shorthand here as this actually adds padding length to table
+  // Keeping this one character is practical here
+  if (text.includes("[g]")) {
+    color = "green";
+    text = text.replace("[g]", "   ");
+  } else if (text.includes("[G]")) {
+    color = "green";
+    text = text.replace("[G]", "   ");
+    bold = true;
+  } else if (text.includes("[r]")) {
+    color = "red";
+    text = text.replace("[r]", "   ");
+  } else if (text.includes("[R]")) {
+    color = "red";
+    text = text.replace("[R]", "   ");
+    bold = true;
+  }
+  return (
+    <Text color={color} bold={bold}>
+      {text}
+    </Text>
   );
 }

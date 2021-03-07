@@ -144,15 +144,19 @@ export function getResource(state: GameState, resource: Resource) {
 export function getRegion(state: GameState, region: Region) {
   return state.regions[REGION_TO_INDEX[region]];
 }
-export function getCurrentRegionResource(
-  state: GameState,
+export function getRegionResource(
+  region: RegionStats,
   resource: Resource
 ): ResourcePile {
   const resourceIndex = RESOURCE_TO_INDEX[resource];
-  return getRegion(state, state.region).resourcePrices[resourceIndex];
+  return region.resourcePrices[resourceIndex];
 }
 export function getSkill(state: GameState, skill: Skill) {
   return state.skills[SKILL_TO_INDEX[skill]];
+}
+
+export function getLocalPrice(state: GameState, resource: Resource): number {
+  return getRegionResource(getRegion(state, state.region), resource).amount;
 }
 
 export function doAction(state: GameState, action: Action) {
