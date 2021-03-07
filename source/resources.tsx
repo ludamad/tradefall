@@ -88,6 +88,12 @@ function ResourceMenuView({ state, title, children }) {
     lowest[0] *= getSpread(state, resource.resource);
     let highestSell = `${highest[0].toFixed(1)}GP (${highest[1]})`;
     let lowestBuy = `${lowest[0].toFixed(1)}GP (${lowest[1]})`;
+    if (highest[1] === state.region) {
+      highestSell = "Here";
+    }
+    if (lowest[1] === state.region) {
+      lowestBuy = "Here";
+    }
     if (highest[0] > lowest[0] * 1.2) {
       highestSell = "[G]" + highestSell;
       lowestBuy = "[G]" + lowestBuy;
@@ -155,7 +161,7 @@ export function ResourceMenu({ state }: MenuProps) {
   const options: string[] = [];
   const optionToAction = {};
   for (const action of actions) {
-    const option = `${action.isBuy ? "Buy" : "Sell"} ${action.resource}`;
+    const option = `${action.resource} ${action.isBuy ? "Buy" : "Sell"}`;
     options.push(option);
     optionToAction[option] = action;
   }

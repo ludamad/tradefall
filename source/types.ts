@@ -40,9 +40,9 @@ export const RESOURCE_TO_INDEX = {
   Leather: 7,
   // silk: 8,
   // opium: 10,
-  Wood: 7,
-  Sugar: 8,
-  Tobacco: 9,
+  Wood: 8,
+  Sugar: 9,
+  Tobacco: 10,
 };
 
 export type Resource = keyof typeof RESOURCE_TO_INDEX;
